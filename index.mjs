@@ -1,7 +1,6 @@
 import Fastify from 'fastify'
 
-import {logger} from './app/utils/index.mjs'
-
+import { logger } from './app/utils/index.mjs'
 
 const fastify = Fastify({
     logger: logger
@@ -15,7 +14,7 @@ fastify.get('/', async (_request, _reply) => {
 // Run the server!
 const start = async () => {
     try {
-        await fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
+        await fastify.listen({ port: process.env.PORT, host: process.env.HOST })
     } catch (err) {
         fastify.log.error(err)
         process.exit(1)

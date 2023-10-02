@@ -10,4 +10,3 @@ const missingVars = REQUIRED_ENV_VARS.filter(key => typeof process.env[key] === 
 if (missingVars.length > 0) {
     throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`)
 }
-

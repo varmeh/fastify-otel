@@ -1,0 +1,14 @@
+{
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "prettier.configPath": "../.prettierrc",
+    "editor.formatOnSave": true,
+    // Tell the ESLint plugin to run on save
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+
+    // Optional: If you want to use the ESLint config to format with Prettier
+    "prettier.eslintIntegration": true
+}

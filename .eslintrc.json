@@ -1,0 +1,180 @@
+{
+    "extends": ["eslint:recommended", "prettier"],
+    "env": {
+        "node": true,
+        "es2020": true,
+        "jest": true
+    },
+    "plugins": ["prettier", "import"],
+    "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+    },
+    "overrides": [
+        {
+            "files": ["*.test.js"],
+            "rules": {
+                "complexity": 0,
+                "max-lines-per-function": 0,
+                "max-statements": 0,
+                "no-magic-numbers": 0,
+                "max-nested-callbacks": 0,
+                "import/first": 0,
+                "import/order": 0,
+                "import/no-namespace": 0
+            }
+        }
+    ],
+    "reportUnusedDisableDirectives": true,
+    "rules": {
+    /* default: "off", current: "warn" */
+    "no-console": 1,
+
+    /* default: "double", current: "single" */
+    "quotes": [2, "single"],
+
+    /* default: "always", current: "never" */
+    "semi": 0,
+
+    /* default: "always", current: "never" */
+    "comma-dangle": [2, "never"],
+
+    /* default: { "before": false, "after": true }, current: same */
+    "comma-spacing": [2, { "before": false, "after": true }],
+
+    /* default: "off", current: "error" */
+    "block-scoped-var": 2,
+
+    /* default: "off", current: "error" */
+    "consistent-return": 2,
+
+    /* default: "off", current: "error" */
+    "default-case": 2,
+
+    /* default: "off", current: "property" */
+    "dot-location": [2, "property"],
+
+    /* default: "off", current: "error" */
+    "eqeqeq": 2,
+
+    /* default: "off", current: [2, 1] */
+    "max-classes-per-file": [2, 1],
+
+    /* default: "off", current: "error" */
+    "no-alert": 2,
+
+    /* default: "off", current: "error" */
+    "no-eq-null": 2,
+
+    /* default: "off", current: { "lexicalBindings": true } */
+    "no-implicit-globals": [2, { "lexicalBindings": true }],
+
+    /* default: "off", current: "error" */
+    "no-loop-func": 2,
+
+    /* default: "off", current: "error" */
+    "no-param-reassign": 2,
+
+    /* default: "off", current: "error" */
+    "no-throw-literal": 2,
+
+    /* default: "off", current: "error" */
+    "no-sequences": 2,
+
+    /* default: "off", current: { "allowEmptyReject": true } */
+    "prefer-promise-reject-errors": [2, { "allowEmptyReject": true }],
+
+    /* default: "off", current: "error" */
+    "no-undefined": 2,
+
+    /* default: "off", current: custom regex */
+    "id-match": [2, "^([_$]*[a-zA-Z0-9]|[_A-Z])*$", { "properties": true, "ignoreDestructuring": false }],
+
+    /* default: "off", current: "error" */
+    "prefer-rest-params": 2,
+
+    /* default: "off", current: "error" */
+    "prefer-arrow-callback": 2,
+
+    /* default: "off", current: "error" */
+    "prefer-const": 2,
+
+    /* default: "off", current: "error" */
+    "prefer-template": 2,
+
+    /* default: "off", current: "error" */
+    "arrow-spacing": 2,
+
+    /* default: "off", current: "error" */
+    "no-var": 2,
+
+    /* default: "off", current: custom configuration */
+    "no-unused-vars": [2, { "vars": "all", "args": "all", "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }],
+
+    /* eslint-plugin-import rules */
+
+    
+    /* default: "error", current: same */
+    "import/no-unresolved": 2,
+
+    /* default: "error", current: same */
+    "import/named": 2,
+
+    /* default: "error", current: same */
+    "import/default": 2,
+
+    /* default: "error", current: same */
+    "import/export": 2,
+
+    /* default: "error", current: same */
+    "import/no-absolute-path": 2,
+
+    /* default: "off", current: "error" */
+    "import/no-dynamic-require": 2,
+
+    /* default: "error", current: same */
+    "import/no-cycle": 2,
+
+    /* default: "error", current: same */
+    "import/no-self-import": 2,
+
+    /* default: "error", current: same */
+    "import/no-useless-path-segments": 2,
+
+    /* default: "error", current: same */
+    "import/no-named-as-default": 2,
+
+    /* default: "error", current: same */
+    "import/no-deprecated": 2,
+
+    /* default: "off", current: custom configuration */
+    "import/no-extraneous-dependencies": [2, { "devDependencies": true, "optionalDependencies": false, "peerDependencies": false, "bundledDependencies": true }],
+
+    /* default: "error", current: same */
+    "import/no-mutable-exports": 2,
+
+    /* default: "error", current: same */
+    "import/first": 2,
+
+    /* default: "off", current: "error" */
+    "import/no-duplicates": 2,
+
+    /* default: "error", current: same */
+    "import/no-namespace": 2,
+
+    /* default: "error", current: custom configuration */
+    "import/extensions": ["error", "ignorePackages", 
+        {
+            "js": "never",
+            "mjs": "always"
+        }
+    ],
+
+    /* default: "error", current: same */
+    "import/order": 2,
+
+    /* default: "error", current: same */
+    "import/newline-after-import": 2
+
+    }
+}

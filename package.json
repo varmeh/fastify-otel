@@ -1,0 +1,36 @@
+{
+	"name": "saas-apps",
+	"version": "1.0.0",
+	"description": "Backend for All SaaS apps",
+	"main": "index.mjs",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node index.mjs",
+		"dev": "nodemon index.mjs"
+	},
+	"type": "module",
+	"exports": {
+		"./utils": "./app/utils/index.mjs"
+	},
+	"keywords": [
+		"saas",
+		"ai",
+		"genai",
+		"langchain",
+		"llama"
+	],
+	"author": "Varun M",
+	"license": "ISC",
+	"dependencies": {
+		"dotenv": "^16.3.1",
+		"fastify": "^4.23.2",
+		"pino": "^8.15.3",
+		"pino-pretty": "^10.2.0"
+	},
+	"devDependencies": {
+		"eslint-config-prettier": "^9.0.0",
+		"eslint-plugin-import": "^2.28.1",
+		"eslint-plugin-prettier": "^5.0.0",
+		"nodemon": "^3.0.1"
+	}
+}

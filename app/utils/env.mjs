@@ -3,7 +3,7 @@ import { config } from 'dotenv'
 // Load environment variables from .env file
 config()
 
-const REQUIRED_ENV_VARS = ['PORT', 'LOG_LEVEL', 'NODE_ENV']
+const REQUIRED_ENV_VARS = ['HOST', 'PORT', 'LOG_LEVEL']
 
 const missingVars = REQUIRED_ENV_VARS.filter(key => typeof process.env[key] === 'undefined' || process.env[key] === '')
 

@@ -1,0 +1,41 @@
+# Docker Compose version
+version: '3'
+
+# Services to be spun up when running `docker-compose up`
+services:
+  # Service name (use lowercase)
+  saas-server:
+    # Image Name
+    image: saas-server-local:latest
+
+    # fixing name of container
+    container_name: saas-server
+
+    # Build the Docker image using the Dockerfile present in the current directory
+    build:
+      context: .
+      dockerfile: Dockerfile.local # Used this file to build the image
+
+    # Map port 3000 of the host to port 3000 of the container
+    ports:
+      - '3000:3000'
+
+    # Use an environment file for setting environment variables
+    env_file: .env.docker
+
+    # Override or add environment variables
+    environment:
+      # Google Cloud credentials for Firebase
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/firebase-config.json
+
+    # Volumes to be mounted into the container
+    volumes:
+      # Mount the JSON file for Firebase into the specified directory in the container
+      - ./.firesdk-dev-admin.json:/app/firebase-config.json
+
+      # Mount the code directory into the specified directory in the container to reflect any changes in code immediately in container
+      - type: bind
+        source: ./app
+        target: /usr/src/app
+        read_only: true
+      # ./src:/usr/src/app # Map .:/usr/app do not work as node_modules local vs one in container clash

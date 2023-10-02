@@ -1,0 +1,52 @@
+# Exclude node modules
+node_modules/
+
+# Exclude logs
+*.log
+
+# Exclude editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Exclude git history and configuration
+.git/
+.gitignore
+
+# Exclude Docker files
+Dockerfile
+Dockerfile.*
+.dockerignore
+docker-compose*
+
+# Exclude testing, build, and CI configuration
+*.test.js
+*.test.mjs
+*.spec.js
+*.spec.mjs
+coverage/
+.travis.yml
+circle.yml
+.github/
+
+# Exclude ESLint and Prettier configuration
+.eslintrc.js
+.eslintrc.json
+.prettierrc
+.prettierrc.json
+
+# Exclude environment variables and secrets
+.env
+.env.*
+
+# Ignore any logs
+logs/
+
+
+# Ignore test, docs, and other non-production files
+test/
+docs/
+.firesdk*.json
+.eslint*
+README.md

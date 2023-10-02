@@ -5,8 +5,8 @@
 	"main": "index.mjs",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "node index.mjs",
-		"dev": "nodemon index.mjs"
+		"start": "NODE_ENV=production node index.mjs",
+		"dev": "NODE_ENV=development nodemon index.mjs"
 	},
 	"type": "module",
 	"exports": {

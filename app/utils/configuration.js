@@ -14,6 +14,26 @@ function getStatusMessage(code) {
 }
 
 export default fastify => {
+    fastify.setNotFoundHandler((request, reply) => {
+        const message = `Route ${request.url} not found`
+
+        request.log.error(
+            {
+                reqId: request.reqId,
+                req: {
+                    method: request.method,
+                    url: request.url,
+                    hostname: request.hostname,
+                    remoteAddress: request.ip,
+                    remotePort: request.connection.remotePort
+                }
+            },
+            message
+        )
+
+        reply.code(404).send({ error: 'Not found', message: `The requested resource ${request.url} does not exist.` })
+    })
+
     fastify.setErrorHandler((error, request, reply) => {
         request.log.error(error)
 

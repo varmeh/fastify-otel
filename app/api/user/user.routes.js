@@ -1,6 +1,6 @@
 import { userSchema } from './user.validator.js'
 
-export default (fastify, _opts, done) => {
+export default async fastify => {
     fastify.get('/users', async (_req, reply) => {
         reply.send({ message: 'Not much of users now' })
     })
@@ -16,6 +16,4 @@ export default (fastify, _opts, done) => {
             reply.send(req.body)
         }
     )
-
-    done()
 }

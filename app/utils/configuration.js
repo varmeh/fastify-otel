@@ -12,8 +12,48 @@ function getStatusMessage(code) {
 }
 
 export default fastify => {
+    /* Logging Request Body for Debugging */
+    if (process.env.LOG_REQUEST_BODY === 'true') {
+        fastify.addHook('preValidation', async (request, _reply) => {
+            request.log.info(
+                {
+                    reqId: request.reqId,
+                    reqData: {
+                        url: request.url,
+                        hostname: request.hostname,
+                        body: request.body,
+                        params: request.params,
+                        query: request.query,
+                        headers: request.headers
+                    }
+                },
+                'logging request data'
+            )
+        })
+    }
+
+    /* Logging Response Body for Debugging */
+    if (process.env.LOG_RESPONSE_BODY === 'true') {
+        fastify.addHook('onSend', async (request, reply, payload) => {
+            try {
+                const parsedPayload = JSON.parse(payload)
+                request.log.info(
+                    {
+                        headers: reply.getHeaders(),
+                        body: parsedPayload
+                    },
+                    'logging the response data'
+                )
+            } catch (error) {
+                // If parsing fails, just log the error and continue
+                request.log.error({ error }, 'error while parsing response data')
+            }
+        })
+    }
+
+    /* Configuration for JOI Validator */
     fastify.setValidatorCompiler(({ schema }) => {
-        // "\"name\" must be a string" -> "name must be a string"
+        /* Changing "\"name\" must be a string" -> "name must be a string" */
         const options = {
             errors: {
                 wrap: {
@@ -25,6 +65,7 @@ export default fastify => {
         return data => schema.validate(data, options)
     })
 
+    /* Customizing 404 Responses */
     fastify.setNotFoundHandler((request, reply) => {
         const message = `Route ${request.url} not found`
 
@@ -34,9 +75,7 @@ export default fastify => {
                 req: {
                     method: request.method,
                     url: request.url,
-                    hostname: request.hostname,
-                    remoteAddress: request.ip,
-                    remotePort: request.connection.remotePort
+                    hostname: request.hostname
                 }
             },
             message
@@ -45,10 +84,10 @@ export default fastify => {
         reply.code(404).send({ error: 'Not found', message: `The requested resource ${request.url} does not exist.` })
     })
 
+    /* Customizing Centralized Error Responses */
     fastify.setErrorHandler((error, request, reply) => {
         request.log.error(error)
 
-        // Customizing Centralized Error Responses
         const statusCode = error.statusCode || 500
         reply.status(statusCode).send({
             error: getStatusMessage(statusCode),

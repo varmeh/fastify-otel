@@ -1,4 +1,5 @@
 import './env.mjs'
+import configureFastify from './configuration.mjs'
 import logger from './logger.mjs'
 
-export { logger }
+export { configureFastify, logger }

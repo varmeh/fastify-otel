@@ -13,7 +13,10 @@ docker compose up
 - Your local `app` directory will be mounted to `/usr/src/app` in container
 - This will ensure that any changes you make locally will be reflected in container immediately
 
-- To implement changes in any folder other than `/app`, rebuild the container using
+- Following changes will require you to rebuild the container:
+  - `package.json` Updates
+  - `docker-compose.yml` or `Dockerfile.local` updates
+  - `.env.docker` updates
 
 ```bash
 docker compose up --build

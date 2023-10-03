@@ -11,9 +11,9 @@
     "trailingComma": "none",
     "overrides": [
         {
-            "files": ["*.md"],
+            "files": ["*.md", "*.yml", "*.yaml"],
             "options": {
-                "tabWidth": 4
+                "tabWidth": 2
             }
         }
     ]

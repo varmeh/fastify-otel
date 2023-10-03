@@ -6,14 +6,25 @@ function getStatusMessage(code) {
             return 'Unauthorized'
         case 403:
             return 'Forbidden'
-        case 404:
-            return 'Not Found'
         default:
             return 'Internal Server Error'
     }
 }
 
 export default fastify => {
+    fastify.setValidatorCompiler(({ schema }) => {
+        // "\"name\" must be a string" -> "name must be a string"
+        const options = {
+            errors: {
+                wrap: {
+                    label: ''
+                }
+            }
+        }
+
+        return data => schema.validate(data, options)
+    })
+
     fastify.setNotFoundHandler((request, reply) => {
         const message = `Route ${request.url} not found`
 
@@ -42,8 +53,8 @@ export default fastify => {
         reply.status(statusCode).send({
             error: getStatusMessage(statusCode),
             message: error.message,
-            code: error.code, // assuming your errors might have a specific 'code'
-            details: error.details // again, assuming you might have more details in some cases
+            code: error.code // assuming your errors might have a specific 'code'
+            // details: error.details // again, assuming you might have more details in some cases
         })
     })
 }

@@ -19,6 +19,7 @@ services:
     # Map port 3000 of the host to port 3000 of the container
     ports:
       - '3000:3000'
+      - '9229:9229' # used for debugging
 
     # Use an environment file for setting environment variables
     env_file: .env.docker

@@ -1,6 +1,6 @@
 import Fastify from 'fastify'
 
-import { configureFastify, logger } from './utils/index.mjs'
+import { configureFastify, logger } from './utils/index.js'
 
 const fastify = Fastify({
     logger: logger

@@ -5,13 +5,10 @@
     "main": "index.mjs",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "NODE_ENV=production node app/index.mjs",
-        "dev": "NODE_ENV=development nodemon --inspect=0.0.0.0:9229 app/index.mjs"
+        "start": "NODE_ENV=production node app/index.js",
+        "dev": "NODE_ENV=development nodemon --inspect=0.0.0.0:9229 app/index.js"
     },
     "type": "module",
-    "exports": {
-        "./utils": "./utils/index.mjs"
-    },
     "keywords": [
         "saas",
         "ai",

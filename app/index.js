@@ -1,10 +1,12 @@
 import Fastify from 'fastify'
+import { v4 as uuidv4 } from 'uuid'
 
 import { configureFastify, logger } from './utils/index.js'
 import registerRoutes from './api/routes.js'
 
 const fastify = Fastify({
-    logger: logger
+    logger: logger,
+    genReqId: () => uuidv4()
 })
 
 configureFastify(fastify)

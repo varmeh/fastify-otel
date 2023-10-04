@@ -27,7 +27,7 @@ export default fastify => {
                         headers: request.headers
                     }
                 },
-                'logging request data'
+                'request data'
             )
         })
     }
@@ -42,7 +42,7 @@ export default fastify => {
                         headers: reply.getHeaders(),
                         body: parsedPayload
                     },
-                    'logging the response data'
+                    'response data'
                 )
             } catch (error) {
                 // If parsing fails, just log the error and continue

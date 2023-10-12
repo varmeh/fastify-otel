@@ -1,68 +1,28 @@
-function getStatusMessage(code) {
-    switch (code) {
-        case 400:
-            return 'Bad Request'
-        case 401:
-            return 'Unauthorized'
-        case 403:
-            return 'Forbidden'
-        default:
-            return 'Internal Server Error'
-    }
-}
+import { SemanticAttributes } from '@opentelemetry/semantic-conventions'
+import { serviceTracer, TracerActivated } from './instrumentation.js'
 
 export default fastify => {
-    /* Logging Request Body for Debugging */
-    if (process.env.LOG_REQUEST_BODY === 'true') {
-        fastify.addHook('preValidation', async (request, _reply) => {
-            request.log.info(
-                {
-                    reqId: request.reqId,
-                    reqData: {
-                        url: request.url,
-                        hostname: request.hostname,
-                        body: request.body,
-                        params: request.params,
-                        query: request.query,
-                        headers: request.headers
-                    }
-                },
-                'request data'
-            )
+    fastify.addHook('preValidation', async (request, _reply) => {
+        logRequestData(request)
+        startSpan(request)
+    })
+
+    fastify.addHook('onSend', async (request, reply, payload) => {
+        logResponseData(request, reply, payload)
+        endSpan(request, reply)
+    })
+
+    /* Customizing Centralized Error Responses */
+    fastify.setErrorHandler((error, request, reply) => {
+        request.log.error(error)
+
+        const statusCode = error.statusCode || 500
+        reply.status(statusCode).send({
+            error: getStatusMessage(statusCode),
+            message: error.message,
+            code: error.code // assuming your errors might have a specific 'code'
+            // details: error.details // again, assuming you might have more details in some cases
         })
-    }
-
-    /* Logging Response Body for Debugging */
-    if (process.env.LOG_RESPONSE_BODY === 'true') {
-        fastify.addHook('onSend', async (request, reply, payload) => {
-            try {
-                const parsedPayload = JSON.parse(payload)
-                request.log.info(
-                    {
-                        headers: reply.getHeaders(),
-                        body: parsedPayload
-                    },
-                    'response data'
-                )
-            } catch (error) {
-                // If parsing fails, just log the error and continue
-                request.log.error({ error }, 'error while parsing response data')
-            }
-        })
-    }
-
-    /* Configuration for JOI Validator */
-    fastify.setValidatorCompiler(({ schema }) => {
-        /* Changing "\"name\" must be a string" -> "name must be a string" */
-        const options = {
-            errors: {
-                wrap: {
-                    label: ''
-                }
-            }
-        }
-
-        return data => schema.validate(data, options)
     })
 
     /* Customizing 404 Responses */
@@ -84,16 +44,102 @@ export default fastify => {
         reply.code(404).send({ error: 'Not found', message: `The requested resource ${request.url} does not exist.` })
     })
 
-    /* Customizing Centralized Error Responses */
-    fastify.setErrorHandler((error, request, reply) => {
-        request.log.error(error)
+    /* Configuration for JOI Validator */
+    fastify.setValidatorCompiler(({ schema }) => {
+        /* Changing "\"name\" must be a string" -> "name must be a string" */
+        const options = {
+            errors: {
+                wrap: {
+                    label: ''
+                }
+            }
+        }
 
-        const statusCode = error.statusCode || 500
-        reply.status(statusCode).send({
-            error: getStatusMessage(statusCode),
-            message: error.message,
-            code: error.code // assuming your errors might have a specific 'code'
-            // details: error.details // again, assuming you might have more details in some cases
-        })
+        return data => schema.validate(data, options)
     })
+}
+
+function getStatusMessage(code) {
+    switch (code) {
+        case 400:
+            return 'Bad Request'
+        case 401:
+            return 'Unauthorized'
+        case 403:
+            return 'Forbidden'
+        default:
+            return 'Internal Server Error'
+    }
+}
+
+/* Logging Request Body for Debugging */
+function logRequestData(request) {
+    if (process.env.LOG_REQUEST_BODY !== 'true') {
+        return
+    }
+    request.log.info(
+        {
+            reqId: request.reqId,
+            reqData: {
+                url: request.url,
+                hostname: request.hostname,
+                body: request.body,
+                params: request.params,
+                query: request.query,
+                headers: request.headers
+            }
+        },
+        'request data'
+    )
+}
+
+/* Logging Response Body for Debugging */
+function logResponseData(request, reply, payload) {
+    if (process.env.LOG_RESPONSE_BODY !== 'true') {
+        return
+    }
+
+    try {
+        const parsedPayload = JSON.parse(payload)
+        request.log.info(
+            {
+                headers: reply.getHeaders(),
+                body: parsedPayload
+            },
+            'response data'
+        )
+    } catch (error) {
+        // If parsing fails, just log the error and continue
+        request.log.error({ error }, 'error while parsing response data')
+    }
+}
+
+function startSpan(request) {
+    if (!TracerActivated()) return
+
+    const span = serviceTracer.startSpan(`Http ${request.method} ${request.url}`)
+
+    // Storing span in the request object for potential child spans.
+    request.span = span
+
+    // Add attributes to the span.
+    span.setAttribute('request.uuid', request.id)
+    span.setAttribute(SemanticAttributes.HTTP_METHOD, request.method)
+    span.setAttribute(SemanticAttributes.HTTP_URL, request.url)
+    span.setAttribute(SemanticAttributes.HTTP_USER_AGENT, request.headers['user-agent'])
+    span.setAttribute(SemanticAttributes.HTTP_HOST, request.hostname)
+    span.setAttribute(SemanticAttributes.HTTP_CLIENT_IP, request.ip)
+}
+
+function endSpan(request, reply) {
+    if (!TracerActivated()) return
+
+    if (request.span) {
+        const span = request.span
+
+        // Adding attributes
+        span.setAttribute(SemanticAttributes.HTTP_STATUS_CODE, reply.statusCode)
+
+        span.end()
+    }
 }

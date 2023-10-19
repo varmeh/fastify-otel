@@ -115,7 +115,7 @@ function logResponseData(request, reply, payload) {
 }
 
 function startSpan(request) {
-    if (!TracerActivated()) return
+    if (!TracerActivated) return
 
     const span = serviceTracer.startSpan(`Http ${request.method} ${request.url}`)
 
@@ -132,7 +132,7 @@ function startSpan(request) {
 }
 
 function endSpan(request, reply) {
-    if (!TracerActivated()) return
+    if (!TracerActivated) return
 
     if (request.span) {
         const span = request.span

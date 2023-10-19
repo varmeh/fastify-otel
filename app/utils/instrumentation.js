@@ -1,63 +1,82 @@
-import { NodeSDK } from '@opentelemetry/sdk-node'
-import { trace } from '@opentelemetry/api'
-import { ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base'
+import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc'
+import { ConsoleSpanExporter, BasicTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
 import { Resource } from '@opentelemetry/resources'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 
 import logger from './logger.js'
 import env from './env.js'
 
-// Check environment variables
-const traceDebug = process.env.TRACE_TYPE.toLowerCase() === 'console'
-const exportTraces = process.env.TRACE_TYPE.toLowerCase() === 'otlp'
+let traceExporter, spanProcessor, provider
+let traceEnabled = false
 
-let traceExporter
+switch (process.env.TRACE_TYPE.toLowerCase()) {
+    case 'otlp':
+        // DEBUG - Enable OpenTelemetry internal logging
+        diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
 
-if (traceDebug && env.isDevelopment()) {
-    traceExporter = new ConsoleSpanExporter()
-    logger.info('Console Trace Exporter Loaded')
-} else if (exportTraces) {
-    const otlpExporterConfig = {
-        url: process.env.OTLP_ENDPOINT,
-        headers: {
-            'api-key': process.env.OTLP_API_KEY
-        },
-        concurrencyLimit: 10,
-        timeoutMillis: 2000
-    }
+        traceExporter = new OTLPTraceExporter({
+            concurrencyLimit: 10,
+            compression: 'gzip'
+        })
+        logger.debug('@Otel - OTLP Trace Exporter Selected')
+        traceEnabled = true
+        break
 
-    traceExporter = new OTLPTraceExporter(otlpExporterConfig)
-    logger.info('OTLP Trace Exporter Loaded')
-} else {
-    logger.info('No Tracing')
+    case 'console':
+        traceExporter = new ConsoleSpanExporter()
+        logger.debug('@Otel - Console Trace Exporter Selected')
+        traceEnabled = true
+        break
+
+    default:
+        logger.debug('@Otel - No Tracing Enabled')
 }
 
-if (traceExporter) {
-    logger.info('Configuring Trace Exporter Loaded')
-    const sdk = new NodeSDK({
-        resource: new Resource({
-            [SemanticResourceAttributes.SERVICE_NAME]: 'saas-app',
-            [SemanticResourceAttributes.SERVICE_VERSION]: '0.1.0',
-            [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: env
-        }),
-        traceExporter: traceExporter
+if (traceEnabled) {
+    logger.info('@Otel - Configuring Trace Exporter')
+
+    const resource = Resource.default().merge(
+        new Resource({
+            [SemanticResourceAttributes.SERVICE_NAME]: `${process.env.APP_NAME}-${env.getEnvironment()}`,
+            [SemanticResourceAttributes.SERVICE_VERSION]: process.env.APP_VERSION,
+            [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: env.getEnvironment()
+        })
+    )
+
+    provider = new BasicTracerProvider({
+        resource: resource
     })
 
-    sdk.start()
-
-    process.on('SIGINT', () => {
-        sdk.shutdown()
-            .then(() => logger.info('SDK shut down gracefully.'))
-            .catch(err => logger.error('Error during SDK shutdown:', err))
-            .finally(() => process.exit(0))
+    spanProcessor = new BatchSpanProcessor(traceExporter, {
+        maxQueueSize: 1000, // The maximum queue size. After the size is reached spans are dropped.
+        scheduledDelayMillis: 1000 // The interval between two consecutive exports
     })
+
+    provider.addSpanProcessor(spanProcessor)
+    provider.register()
+
+    process.on('SIGTERM', traceShudown)
+    process.on('SIGINT', traceShudown)
+}
+
+// Function to handle the shutdown logic
+async function traceShudown() {
+    try {
+        logger.info('@Otel - Tracer Shutting down in progress')
+        await spanProcessor.shutdown() // Shutdown the span processor to ensure all spans are exported
+        logger.info('@Otel - Tracer Shutdown complete')
+    } catch (err) {
+        logger.error('@Otel - Tracer Shutdown error', err)
+    } finally {
+        process.exit(0) // Exit the process with a success status code
+    }
 }
 
 // Configuring Tracers
-export const serviceTracer = trace.getTracer('service')
-export const dbTracer = trace.getTracer('database')
-export const axiosTracer = trace.getTracer('axios')
+export const serviceTracer = provider?.getTracer('service')
+export const dbTracer = provider?.getTracer('database')
+export const axiosTracer = provider?.getTracer('axios')
 
 // Tracing Enabled
-export const TracerActivated = () => !!traceExporter
+export const TracerActivated = traceEnabled

@@ -4,8 +4,8 @@ import { config } from 'dotenv'
 config()
 
 class Environment {
-    constructor(nodeEnv) {
-        this.nodeEnv = nodeEnv.toLowerCase()
+    constructor() {
+        this.nodeEnv = process.env.NODE_ENV.toLowerCase()
     }
 
     isProduction() {
@@ -27,7 +27,7 @@ class Environment {
 
 /* Check MANDATORY env variables are present in env file */
 function checkMissingVariables() {
-    const REQUIRED_ENV_VARS = ['HOST', 'PORT', 'LOG_LEVEL']
+    const REQUIRED_ENV_VARS = ['HOST', 'PORT', 'LOG_LEVEL', 'TRACE_TYPE', 'APP_NAME', 'APP_VERSION']
 
     const missingVars = REQUIRED_ENV_VARS.filter(key => typeof process.env[key] === 'undefined' || process.env[key] === '')
 
@@ -36,29 +36,10 @@ function checkMissingVariables() {
     }
 }
 
-/* Verify if OTEL configured properly */
-function verifyOtelConfiguration() {
-    const traceType = process.env.TRACE_TYPE
-    if (!traceType) {
-        return // TRACE_TYPE is not defined, do nothing
-    }
-
-    if (traceType.toLowerCase() === 'otlp') {
-        const requiredOtelVars = ['OTLP_API_KEY', 'OTLP_ENDPOINT']
-        const missingOtelVars = requiredOtelVars.filter(key => typeof process.env[key] === 'undefined' || process.env[key] === '')
-
-        if (missingOtelVars.length > 0) {
-            throw new Error(`Missing required OTLP environment variables: ${missingOtelVars.join(', ')}`)
-        }
-    }
-}
-
 function setupEnvironment() {
     checkMissingVariables()
 
-    verifyOtelConfiguration()
-
-    return new Environment(process.env.NODE_ENV)
+    return new Environment()
 }
 
 // Export a singleton instance of Environment

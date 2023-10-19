@@ -4,8 +4,8 @@ import { ConsoleSpanExporter, BasicTracerProvider, BatchSpanProcessor } from '@o
 import { Resource } from '@opentelemetry/resources'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 
-import logger from './logger.js'
-import env from './env.js'
+import logger from '../logger.js'
+import env from '../env.js'
 
 let traceExporter, spanProcessor, provider
 let traceEnabled = false

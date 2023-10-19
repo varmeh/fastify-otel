@@ -1,5 +1,5 @@
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions'
-import { serviceTracer, TracerActivated } from './instrumentation.js'
+import { serviceTracer, TracerActivated } from './otel/traces.js'
 
 export default fastify => {
     fastify.addHook('preValidation', async (request, _reply) => {
@@ -77,17 +77,18 @@ function logRequestData(request) {
     if (process.env.LOG_REQUEST_BODY !== 'true') {
         return
     }
+
+    const data = {}
+    if (request.body) {
+        data.body = request.body
+    }
+
     request.log.info(
         {
-            reqId: request.reqId,
-            reqData: {
-                url: request.url,
-                hostname: request.hostname,
-                body: request.body,
-                params: request.params,
-                query: request.query,
-                headers: request.headers
-            }
+            ...data,
+            url: request.url,
+            hostname: request.hostname,
+            headers: request.headers
         },
         'request data'
     )

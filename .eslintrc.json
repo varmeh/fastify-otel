@@ -27,9 +27,6 @@
     ],
     "reportUnusedDisableDirectives": true,
     "rules": {
-        /* default: "off", current: "warn" */
-        "no-console": 1,
-
         /* default: "double", current: "single" */
         "quotes": [2, "single"],
 

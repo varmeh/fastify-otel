@@ -1,40 +1,24 @@
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc'
-import { ConsoleSpanExporter, BasicTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
+import { BasicTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
 import { Resource } from '@opentelemetry/resources'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 
-import logger from '../logger.js'
 import env from '../env.js'
 
 let traceExporter, spanProcessor, provider
-let traceEnabled = false
-
-switch (process.env.TRACE_TYPE.toLowerCase()) {
-    case 'otlp':
-        // DEBUG - Enable OpenTelemetry internal logging
-        diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
-
-        traceExporter = new OTLPTraceExporter({
-            concurrencyLimit: 10,
-            compression: 'gzip'
-        })
-        logger.debug('@Otel - OTLP Trace Exporter Selected')
-        traceEnabled = true
-        break
-
-    case 'console':
-        traceExporter = new ConsoleSpanExporter()
-        logger.debug('@Otel - Console Trace Exporter Selected')
-        traceEnabled = true
-        break
-
-    default:
-        logger.debug('@Otel - No Tracing Enabled')
-}
+const traceEnabled = process.env.OTEL_ENABLED === 'true'
 
 if (traceEnabled) {
-    logger.info('@Otel - Configuring Trace Exporter')
+    console.info('@Otel - Tracing Enabled')
+
+    // DEBUG - Enable OpenTelemetry internal logging
+    diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
+
+    traceExporter = new OTLPTraceExporter({
+        concurrencyLimit: 10,
+        compression: 'gzip'
+    })
 
     const resource = Resource.default().merge(
         new Resource({
@@ -63,11 +47,11 @@ if (traceEnabled) {
 // Function to handle the shutdown logic
 async function traceShudown() {
     try {
-        logger.info('@Otel - Tracer Shutting down in progress')
+        console.info('@Otel - Tracer Shutting down in progress')
         await spanProcessor.shutdown() // Shutdown the span processor to ensure all spans are exported
-        logger.info('@Otel - Tracer Shutdown complete')
+        console.info('@Otel - Tracer Shutdown complete')
     } catch (err) {
-        logger.error('@Otel - Tracer Shutdown error', err)
+        console.error('@Otel - Tracer Shutdown error', err)
     } finally {
         process.exit(0) // Exit the process with a success status code
     }

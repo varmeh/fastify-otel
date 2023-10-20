@@ -20,21 +20,23 @@
     "license": "ISC",
     "dependencies": {
         "@opentelemetry/api": "^1.6.0",
+        "@opentelemetry/exporter-logs-otlp-grpc": "^0.44.0",
         "@opentelemetry/exporter-trace-otlp-grpc": "^0.44.0",
         "@opentelemetry/resources": "^1.17.1",
+        "@opentelemetry/sdk-logs": "^0.44.0",
         "@opentelemetry/sdk-trace-base": "^1.17.1",
         "@opentelemetry/semantic-conventions": "^1.17.1",
         "dotenv": "^16.3.1",
         "fastify": "^4.23.2",
         "joi": "^17.10.2",
         "pino": "^8.15.3",
-        "pino-pretty": "^10.2.0",
         "uuid": "^9.0.1"
     },
     "devDependencies": {
         "eslint-config-prettier": "^9.0.0",
         "eslint-plugin-import": "^2.28.1",
         "eslint-plugin-prettier": "^5.0.0",
-        "nodemon": "^3.0.1"
+        "nodemon": "^3.0.1",
+        "pino-pretty": "^10.2.0"
     }
 }

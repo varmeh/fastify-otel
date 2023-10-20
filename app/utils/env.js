@@ -27,7 +27,7 @@ class Environment {
 
 /* Check MANDATORY env variables are present in env file */
 function checkMissingVariables() {
-    const REQUIRED_ENV_VARS = ['HOST', 'PORT', 'LOG_LEVEL', 'TRACE_TYPE', 'APP_NAME', 'APP_VERSION']
+    const REQUIRED_ENV_VARS = ['HOST', 'PORT', 'LOG_LEVEL', 'APP_NAME', 'APP_VERSION']
 
     const missingVars = REQUIRED_ENV_VARS.filter(key => typeof process.env[key] === 'undefined' || process.env[key] === '')
 

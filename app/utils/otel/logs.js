@@ -49,7 +49,7 @@ function mapPinoLogsToOtelLogRecord(pinoData) {
     const { msg, level, time, ...attributes } = pinoData
 
     const [severityNumber, severityText] = mapPinoToOtelLevel(level)
-    const message = msg
+    const message = pinoData.reqId ? `[${pinoData.reqId.slice(0, 8)}] ${msg}` : `${msg}`
 
     // Serialize any non-primitive attribute values to a string representation
     const serializedAttributes = Object.fromEntries(

@@ -1,7 +1,7 @@
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions'
-import { serviceTracer, TracerActivated } from './otel/traces.js'
+import { otelServiceTracer, isOtelTracerEnabled } from './otel/traces.js'
 
-export default fastify => {
+export const configureFastify = fastify => {
     fastify.addHook('preValidation', async (request, _reply) => {
         logRequestData(request)
         startSpan(request)
@@ -116,9 +116,9 @@ function logResponseData(request, reply, payload) {
 }
 
 function startSpan(request) {
-    if (!TracerActivated) return
+    if (!isOtelTracerEnabled) return
 
-    const span = serviceTracer.startSpan(`Http ${request.method} ${request.url}`)
+    const span = otelServiceTracer.startSpan(`Http ${request.method} ${request.url}`)
 
     // Storing span in the request object for potential child spans.
     request.span = span
@@ -133,7 +133,7 @@ function startSpan(request) {
 }
 
 function endSpan(request, reply) {
-    if (!TracerActivated) return
+    if (!isOtelTracerEnabled) return
 
     if (request.span) {
         const span = request.span

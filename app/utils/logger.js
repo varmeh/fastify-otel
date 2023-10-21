@@ -1,29 +1,55 @@
+// const { PinoInstrumentation } = require('@opentelemetry/instrumentation-pino')
+// const { registerInstrumentations } = require('@opentelemetry/instrumentation')
+
+// // Register the Pino instrumentation
+// registerInstrumentations({
+//     instrumentations: [new PinoInstrumentation()]
+// })
+
 import pino from 'pino'
+
+import { isOtelTracerEnabled } from './otel/index.js'
 
 const logLevel = process.env.LOG_LEVEL ?? 'debug'
 const env = process.env.NODE_ENV ?? 'development'
 
 const baseLogOptions = {
     level: logLevel,
-    formatters: {
-        level(label) {
-            return { level: label }
-        }
+    redact: {
+        paths: ['req.headers.authorization', 'username', 'password', 'req.headers.cookie'],
+        remove: true
     }
 }
 
-if (env !== 'production') {
-    baseLogOptions.transport = {
+const transportTargets = []
+
+if (env !== 'prod') {
+    // Pretty Console prints for Non-Prod Environment
+    transportTargets.push({
         target: 'pino-pretty',
         options: {
             colorize: true,
             translateTime: 'yyyy-mm-dd HH:MM:ss'
         }
-    }
+    })
+} else {
+    // Standard Console prints for Prod Environment
+    transportTargets.push({
+        target: 'pino/file',
+        level: 'debug'
+    })
 }
 
-const logger = pino(baseLogOptions)
+if (isOtelTracerEnabled) {
+    // Add the otelTransport to the transportTargets array
+    transportTargets.push({
+        target: './otel/logs.js',
+        level: 'debug' // Set the desired log level for OpenTelemetry export
+    })
+}
 
-// Refer link to understand logging options for pino - https://github.com/pinojs/pino/blob/25ba61f40ea5a1a753c85002812426d765da52a4/examples/basic.js
+const transport = pino.transport({
+    targets: transportTargets
+})
 
-export default logger
+export const logger = pino(baseLogOptions, transport)

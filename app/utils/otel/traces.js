@@ -1,10 +1,10 @@
-import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc'
 import { BasicTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
 import { Resource } from '@opentelemetry/resources'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 
-import env from '../env.js'
+// import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api'
+import { env } from '../env.js'
 
 let traceExporter, spanProcessor, provider
 const traceEnabled = process.env.OTEL_ENABLED === 'true'
@@ -13,7 +13,7 @@ if (traceEnabled) {
     console.info('@Otel - Tracing Enabled')
 
     // DEBUG - Enable OpenTelemetry internal logging
-    diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
+    // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
 
     traceExporter = new OTLPTraceExporter({
         concurrencyLimit: 10,
@@ -58,9 +58,9 @@ async function traceShudown() {
 }
 
 // Configuring Tracers
-export const serviceTracer = provider?.getTracer('service')
-export const dbTracer = provider?.getTracer('database')
-export const axiosTracer = provider?.getTracer('axios')
+export const otelServiceTracer = provider?.getTracer('service')
+export const otelDbTracer = provider?.getTracer('database')
+export const otelAxiosTracer = provider?.getTracer('axios')
 
 // Tracing Enabled
-export const TracerActivated = traceEnabled
+export const isOtelTracerEnabled = traceEnabled

@@ -1,10 +1,6 @@
 import './env.js'
 
-import './otel/traces.js'
+export * from './otel/index.js'
+export * from './configuration.js'
 
-import configureFastify from './configuration.js'
-import logger from './logger.js'
-
-export * from './otel/traces.js'
-
-export { configureFastify, logger }
+export * from './logger.js'

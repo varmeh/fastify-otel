@@ -1,6 +1,6 @@
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions'
 import { otelServiceTracer } from './otel/traces.js'
-import { env } from './env.js'
+import env from './env.js'
 
 export const configureFastify = fastify => {
     fastify.addHook('preValidation', async (request, _reply) => {

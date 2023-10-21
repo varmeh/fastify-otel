@@ -1,4 +1,6 @@
-import './env.js'
+import env from './env.js'
+
+export { env }
 
 export * from './otel/traces.js'
 export * from './configuration.js'

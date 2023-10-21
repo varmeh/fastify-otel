@@ -4,7 +4,7 @@ import { Resource } from '@opentelemetry/resources'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 
 // import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api'
-import { env } from '../env.js'
+import env from '../env.js'
 
 let traceExporter, spanProcessor, provider
 

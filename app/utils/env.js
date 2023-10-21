@@ -56,4 +56,5 @@ function setupEnvironment() {
 }
 
 // Export a singleton instance of Environment
-export const env = setupEnvironment()
+const env = setupEnvironment()
+export default env

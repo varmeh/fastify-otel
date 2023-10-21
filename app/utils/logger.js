@@ -8,7 +8,7 @@
 
 import pino from 'pino'
 
-import { isOtelTracerEnabled } from './otel/index.js'
+import { isOtelTracerEnabled } from './otel/traces.js'
 
 const logLevel = process.env.LOG_LEVEL ?? 'debug'
 const env = process.env.NODE_ENV ?? 'development'

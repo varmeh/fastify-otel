@@ -11,26 +11,31 @@ import { env } from '../env.js'
 // DEBUG - Enable OpenTelemetry internal logging
 // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
 
-const loggerExporter = new OTLPLogExporter()
+let otelLogger
 
-const resource = Resource.default().merge(
-    new Resource({
-        [SemanticResourceAttributes.SERVICE_NAME]: `${process.env.APP_NAME}-${env.getEnvironment()}`,
-        [SemanticResourceAttributes.SERVICE_VERSION]: process.env.APP_VERSION,
-        [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: env.getEnvironment()
+if (process.env.OTEL_ENABLED === 'true') {
+    console.info('@Otel - Logging Enabled')
+    const loggerExporter = new OTLPLogExporter()
+
+    const resource = Resource.default().merge(
+        new Resource({
+            [SemanticResourceAttributes.SERVICE_NAME]: `${process.env.APP_NAME}-${env.getEnvironment()}`,
+            [SemanticResourceAttributes.SERVICE_VERSION]: process.env.APP_VERSION,
+            [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: env.getEnvironment()
+        })
+    )
+    const loggerProvider = new LoggerProvider({
+        resource: resource
     })
-)
-const loggerProvider = new LoggerProvider({
-    resource: resource
-})
 
-loggerProvider.addLogRecordProcessor(new BatchLogRecordProcessor(loggerExporter))
-;['SIGINT', 'SIGTERM'].forEach(signal => {
-    process.on(signal, () => loggerProvider.shutdown().catch(console.error))
-})
+    loggerProvider.addLogRecordProcessor(new BatchLogRecordProcessor(loggerExporter))
+    ;['SIGINT', 'SIGTERM'].forEach(signal => {
+        process.on(signal, () => loggerProvider.shutdown().catch(console.error))
+    })
 
-// logging
-const otelLogger = loggerProvider.getLogger('fastify-logger', process.env.APP_VERSION)
+    // logging
+    otelLogger = loggerProvider.getLogger('fastify-logger', process.env.APP_VERSION)
+}
 
 export default async function (_opts) {
     return build(async source => {

@@ -12,16 +12,29 @@ class Environment {
         return this.nodeEnv === 'prod'
     }
 
-    isDevelopment() {
-        return this.nodeEnv === 'dev'
+    isOtelEnabled() {
+        return process.env.OTEL_ENABLED === 'true'
     }
 
-    isTest() {
-        return this.nodeEnv === 'test'
-    }
-
-    getEnvironment() {
+    envName() {
         return this.nodeEnv
+    }
+
+    logLevel() {
+        const logLevel = process.env.LOG_LEVEL.toLowerCase() ?? 'info'
+        return logLevel
+    }
+
+    appName() {
+        return process.env.APP_NAME.toLowerCase()
+    }
+
+    appVersion() {
+        return process.env.APP_VERSION
+    }
+
+    serviceName() {
+        return `${this.appName()}-${this.envName()}`
     }
 }
 
@@ -43,5 +56,4 @@ function setupEnvironment() {
 }
 
 // Export a singleton instance of Environment
-const env = setupEnvironment()
-export { env }
+export const env = setupEnvironment()

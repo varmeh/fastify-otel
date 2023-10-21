@@ -13,15 +13,15 @@ import { env } from '../env.js'
 
 let otelLogger, loggerProvider
 
-if (process.env.OTEL_ENABLED === 'true') {
+if (env.isOtelEnabled()) {
     console.info('@Otel - Logging Enabled')
     const loggerExporter = new OTLPLogExporter()
 
     const resource = Resource.default().merge(
         new Resource({
-            [SemanticResourceAttributes.SERVICE_NAME]: `${process.env.APP_NAME}-${env.getEnvironment()}`,
-            [SemanticResourceAttributes.SERVICE_VERSION]: process.env.APP_VERSION,
-            [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: env.getEnvironment()
+            [SemanticResourceAttributes.SERVICE_NAME]: env.serviceName(),
+            [SemanticResourceAttributes.SERVICE_VERSION]: env.appVersion(),
+            [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: env.envName()
         })
     )
 
@@ -34,7 +34,7 @@ if (process.env.OTEL_ENABLED === 'true') {
     loggerProvider.addLogRecordProcessor(new BatchLogRecordProcessor(loggerExporter))
 
     // logging
-    otelLogger = loggerProvider.getLogger('fastify-logger', process.env.APP_VERSION)
+    otelLogger = loggerProvider.getLogger('fastify-logger', env.appVersion())
 
     // Graceful Shutdown
     process.on('SIGTERM', loggerShutdown)

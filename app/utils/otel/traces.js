@@ -7,9 +7,8 @@ import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 import { env } from '../env.js'
 
 let traceExporter, spanProcessor, provider
-const traceEnabled = process.env.OTEL_ENABLED === 'true'
 
-if (traceEnabled) {
+if (env.isOtelEnabled()) {
     console.info('@Otel - Tracing Enabled')
 
     // DEBUG - Enable OpenTelemetry internal logging
@@ -22,9 +21,9 @@ if (traceEnabled) {
 
     const resource = Resource.default().merge(
         new Resource({
-            [SemanticResourceAttributes.SERVICE_NAME]: `${process.env.APP_NAME}-${env.getEnvironment()}`,
-            [SemanticResourceAttributes.SERVICE_VERSION]: process.env.APP_VERSION,
-            [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: env.getEnvironment()
+            [SemanticResourceAttributes.SERVICE_NAME]: env.serviceName(),
+            [SemanticResourceAttributes.SERVICE_VERSION]: env.appVersion(),
+            [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: env.envName()
         })
     )
 
@@ -61,6 +60,3 @@ async function traceShudown() {
 export const otelServiceTracer = provider?.getTracer('service')
 export const otelDbTracer = provider?.getTracer('database')
 export const otelAxiosTracer = provider?.getTracer('axios')
-
-// Tracing Enabled
-export const isOtelTracerEnabled = traceEnabled

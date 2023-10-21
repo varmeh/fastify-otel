@@ -11,7 +11,7 @@ import { env } from '../env.js'
 // DEBUG - Enable OpenTelemetry internal logging
 // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
 
-let otelLogger
+let otelLogger, loggerProvider
 
 if (process.env.OTEL_ENABLED === 'true') {
     console.info('@Otel - Logging Enabled')
@@ -24,17 +24,21 @@ if (process.env.OTEL_ENABLED === 'true') {
             [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: env.getEnvironment()
         })
     )
-    const loggerProvider = new LoggerProvider({
+
+    // To start a logger, you first need to initialize the Logger provider.
+    loggerProvider = new LoggerProvider({
         resource: resource
     })
 
+    // Add a processor to export log record
     loggerProvider.addLogRecordProcessor(new BatchLogRecordProcessor(loggerExporter))
-    ;['SIGINT', 'SIGTERM'].forEach(signal => {
-        process.on(signal, () => loggerProvider.shutdown().catch(console.error))
-    })
 
     // logging
     otelLogger = loggerProvider.getLogger('fastify-logger', process.env.APP_VERSION)
+
+    // Graceful Shutdown
+    process.on('SIGTERM', loggerShutdown)
+    process.on('SIGINT', loggerShutdown)
 }
 
 export default async function (_opts) {
@@ -91,5 +95,18 @@ function mapPinoToOtelLevel(pinoLevel) {
             return [24, 'FATAL']
         default:
             return [9, 'INFO'] // Default to INFO
+    }
+}
+
+// Function to handle the shutdown logic
+async function loggerShutdown() {
+    try {
+        console.info('@Otel - Logger Shutdown On Progress')
+        await loggerProvider.shutdown()
+        console.info('@Otel - Logger Shutdown Complete')
+    } catch (err) {
+        console.error('@Otel - Logger Shutdown Failure', err)
+    } finally {
+        process.exit(0) // Exit the process with a success status code
     }
 }

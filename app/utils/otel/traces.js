@@ -1,5 +1,5 @@
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc'
-import { BasicTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
+import { NodeTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-node'
 import { Resource } from '@opentelemetry/resources'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 
@@ -28,7 +28,7 @@ if (traceEnabled) {
         })
     )
 
-    provider = new BasicTracerProvider({
+    provider = new NodeTracerProvider({
         resource: resource
     })
 
@@ -47,11 +47,11 @@ if (traceEnabled) {
 // Function to handle the shutdown logic
 async function traceShudown() {
     try {
-        console.info('@Otel - Tracer Shutting down in progress')
+        console.info('@Otel - Tracer Shutdown In Progress')
         await spanProcessor.shutdown() // Shutdown the span processor to ensure all spans are exported
-        console.info('@Otel - Tracer Shutdown complete')
+        console.info('@Otel - Tracer Shutdown Complete')
     } catch (err) {
-        console.error('@Otel - Tracer Shutdown error', err)
+        console.error('@Otel - Tracer Shutdown Failure', err)
     } finally {
         process.exit(0) // Exit the process with a success status code
     }

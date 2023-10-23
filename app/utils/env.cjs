@@ -1,4 +1,4 @@
-import { config } from 'dotenv'
+const { config } = require('dotenv')
 
 // Load environment variables from .env file
 config()
@@ -57,4 +57,4 @@ function setupEnvironment() {
 
 // Export a singleton instance of Environment
 const env = setupEnvironment()
-export default env
+module.exports = env

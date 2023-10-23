@@ -6,7 +6,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "NODE_ENV=prod node app/index.js",
-        "dev": "NODE_ENV=dev nodemon --inspect=0.0.0.0:9229 app/index.js"
+        "dev": "NODE_ENV=dev nodemon --inspect=0.0.0.0:9229 -r ./app/utils/otel/traceConfig.cjs app/index.js"
     },
     "type": "module",
     "keywords": [
@@ -22,6 +22,8 @@
         "@opentelemetry/api": "^1.6.0",
         "@opentelemetry/exporter-logs-otlp-grpc": "^0.44.0",
         "@opentelemetry/exporter-trace-otlp-grpc": "^0.44.0",
+        "@opentelemetry/instrumentation": "^0.44.0",
+        "@opentelemetry/instrumentation-pino": "^0.34.2",
         "@opentelemetry/resources": "^1.17.1",
         "@opentelemetry/sdk-logs": "^0.44.0",
         "@opentelemetry/sdk-trace-node": "^1.17.1",

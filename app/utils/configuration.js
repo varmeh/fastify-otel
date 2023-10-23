@@ -1,6 +1,7 @@
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions'
-import { otelServiceTracer } from './otel/traces.js'
-import env from './env.js'
+import { otelServiceTracer } from './otel/tracers.js'
+
+import env from './env.cjs'
 
 export const configureFastify = fastify => {
     fastify.addHook('preValidation', async (request, _reply) => {
@@ -134,8 +135,6 @@ function startSpan(request) {
 }
 
 function endSpan(request, reply) {
-    if (!env.isOtelEnabled()) return
-
     if (request.span) {
         const span = request.span
 

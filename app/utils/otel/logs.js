@@ -6,7 +6,7 @@ import build from 'pino-abstract-transport'
 
 // import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api'
 
-import env from '../env.js'
+import env from '../env.cjs'
 
 // DEBUG - Enable OpenTelemetry internal logging
 // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)

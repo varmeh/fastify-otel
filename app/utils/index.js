@@ -1,5 +1,3 @@
-import './env.js'
-import configureFastify from './configuration.js'
-import logger from './logger.js'
+export * from './configuration.js'
 
-export { configureFastify, logger }
+export * from './logger.cjs'

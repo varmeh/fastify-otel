@@ -27,9 +27,6 @@
     ],
     "reportUnusedDisableDirectives": true,
     "rules": {
-        /* default: "off", current: "warn" */
-        "no-console": 1,
-
         /* default: "double", current: "single" */
         "quotes": [2, "single"],
 
@@ -146,12 +143,6 @@
         /* default: "error", current: same */
         "import/no-deprecated": 2,
 
-        /* default: "off", current: custom configuration */
-        "import/no-extraneous-dependencies": [
-            2,
-            { "devDependencies": true, "optionalDependencies": false, "peerDependencies": false, "bundledDependencies": true }
-        ],
-
         /* default: "error", current: same */
         "import/no-mutable-exports": 2,
 
@@ -163,16 +154,6 @@
 
         /* default: "error", current: same */
         "import/no-namespace": 2,
-
-        /* default: "error", current: custom configuration */
-        // "import/extensions": [
-        //     "error",
-        //     "ignorePackages",
-        //     {
-        //         "js": "always",
-        //         "mjs": "never"
-        //     }
-        // ],
 
         /* default: "error", current: same */
         "import/order": 2,

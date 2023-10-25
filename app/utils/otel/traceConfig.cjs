@@ -9,6 +9,7 @@ const { PinoInstrumentation } = require('@opentelemetry/instrumentation-pino')
 const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http')
 const { FastifyInstrumentation } = require('@opentelemetry/instrumentation-fastify')
 
+// DEBUG - Enable OpenTelemetry internal logging
 // const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api')
 
 const env = require('../env.cjs')
@@ -20,11 +21,6 @@ if (env.isOtelEnabled()) {
 
     // DEBUG - Enable OpenTelemetry internal logging
     // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
-
-    const traceExporter = new OTLPTraceExporter({
-        concurrencyLimit: 10,
-        compression: 'gzip'
-    })
 
     const resource = Resource.default().merge(
         new Resource({
@@ -39,6 +35,11 @@ if (env.isOtelEnabled()) {
     provider = new NodeTracerProvider({
         resource: resource,
         contextManager: contextManager
+    })
+
+    const traceExporter = new OTLPTraceExporter({
+        concurrencyLimit: 10,
+        compression: 'gzip'
     })
 
     spanProcessor = new BatchSpanProcessor(traceExporter, {

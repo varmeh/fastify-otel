@@ -41,6 +41,7 @@ if (env.isOtelEnabled()) {
     process.on('SIGINT', loggerShutdown)
 }
 
+// Pino Log Transport
 export default async function (_opts) {
     return build(async source => {
         for await (const logObject of source) {

@@ -65,6 +65,12 @@ function mapPinoLogsToOtelLogRecord(pinoData) {
         })
     )
 
+    // Following Configuration required to connect traces with logs in NewRelic
+    if (attributes.span_id && env.isOtelBackendNewRelic()) {
+        serializedAttributes['span.id'] = attributes.span_id
+        serializedAttributes['trace.id'] = attributes.trace_id
+    }
+
     const logRecord = {
         timestamp: time,
         severityNumber: severityNumber,

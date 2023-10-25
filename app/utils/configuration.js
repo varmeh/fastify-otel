@@ -82,7 +82,6 @@ function logRequestData(request) {
         {
             ...data,
             url: request.url,
-            hostname: request.hostname,
             headers: request.headers
         },
         'request data'

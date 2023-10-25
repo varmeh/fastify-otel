@@ -44,6 +44,10 @@ class Environment {
     logResponseData() {
         return process.env.LOG_RESPONSE_BODY === 'true'
     }
+
+    isOtelBackendNewRelic() {
+        return process.env.OTEL_BACKEND.toUpperCase() === 'NEW-RELIC'
+    }
 }
 
 /* Check MANDATORY env variables are present in env file */

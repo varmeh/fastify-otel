@@ -9,7 +9,7 @@ const { PinoInstrumentation } = require('@opentelemetry/instrumentation-pino')
 const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http')
 const { FastifyInstrumentation } = require('@opentelemetry/instrumentation-fastify')
 
-const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api')
+// const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api')
 
 const env = require('../env.cjs')
 
@@ -19,7 +19,7 @@ if (env.isOtelEnabled()) {
     console.info('@Otel - Tracing Enabled')
 
     // DEBUG - Enable OpenTelemetry internal logging
-    diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
+    // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
 
     const traceExporter = new OTLPTraceExporter({
         concurrencyLimit: 10,

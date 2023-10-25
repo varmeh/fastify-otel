@@ -1,17 +1,12 @@
-import { SemanticAttributes } from '@opentelemetry/semantic-conventions'
-import { otelServiceTracer } from './otel/tracers.js'
-
 import env from './env.cjs'
 
 export const configureFastify = fastify => {
     fastify.addHook('preValidation', async (request, _reply) => {
         logRequestData(request)
-        startSpan(request)
     })
 
     fastify.addHook('onSend', async (request, reply, payload) => {
         logResponseData(request, reply, payload)
-        endSpan(request, reply)
     })
 
     /* Customizing Centralized Error Responses */
@@ -76,9 +71,7 @@ function getStatusMessage(code) {
 
 /* Logging Request Body for Debugging */
 function logRequestData(request) {
-    if (process.env.LOG_REQUEST_BODY !== 'true') {
-        return
-    }
+    if (!env.logRequestData()) return
 
     const data = {}
     if (request.body) {
@@ -98,9 +91,7 @@ function logRequestData(request) {
 
 /* Logging Response Body for Debugging */
 function logResponseData(request, reply, payload) {
-    if (process.env.LOG_RESPONSE_BODY !== 'true') {
-        return
-    }
+    if (!env.logResponseData()) return
 
     try {
         const parsedPayload = JSON.parse(payload)
@@ -114,33 +105,5 @@ function logResponseData(request, reply, payload) {
     } catch (error) {
         // If parsing fails, just log the error and continue
         request.log.error({ error }, 'error while parsing response data')
-    }
-}
-
-function startSpan(request) {
-    if (!env.isOtelEnabled()) return
-
-    const span = otelServiceTracer.startSpan(`Http ${request.method} ${request.url}`)
-
-    // Storing span in the request object for potential child spans.
-    request.span = span
-
-    // Add attributes to the span.
-    span.setAttribute('request.uuid', request.id)
-    span.setAttribute(SemanticAttributes.HTTP_METHOD, request.method)
-    span.setAttribute(SemanticAttributes.HTTP_URL, request.url)
-    span.setAttribute(SemanticAttributes.HTTP_USER_AGENT, request.headers['user-agent'])
-    span.setAttribute(SemanticAttributes.HTTP_HOST, request.hostname)
-    span.setAttribute(SemanticAttributes.HTTP_CLIENT_IP, request.ip)
-}
-
-function endSpan(request, reply) {
-    if (request.span) {
-        const span = request.span
-
-        // Adding attributes
-        span.setAttribute(SemanticAttributes.HTTP_STATUS_CODE, reply.statusCode)
-
-        span.end()
     }
 }

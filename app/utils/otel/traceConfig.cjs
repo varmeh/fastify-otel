@@ -1,10 +1,13 @@
 const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-grpc')
 const { NodeTracerProvider, BatchSpanProcessor } = require('@opentelemetry/sdk-trace-node')
 const { Resource } = require('@opentelemetry/resources')
-const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions')
+const { SemanticResourceAttributes, SemanticAttributes } = require('@opentelemetry/semantic-conventions')
+const { AsyncLocalStorageContextManager } = require('@opentelemetry/context-async-hooks')
 
 const { registerInstrumentations } = require('@opentelemetry/instrumentation')
 const { PinoInstrumentation } = require('@opentelemetry/instrumentation-pino')
+const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http')
+const { FastifyInstrumentation } = require('@opentelemetry/instrumentation-fastify')
 
 const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api')
 
@@ -31,8 +34,11 @@ if (env.isOtelEnabled()) {
         })
     )
 
+    const contextManager = new AsyncLocalStorageContextManager().enable()
+
     provider = new NodeTracerProvider({
-        resource: resource
+        resource: resource,
+        contextManager: contextManager
     })
 
     spanProcessor = new BatchSpanProcessor(traceExporter, {
@@ -45,14 +51,20 @@ if (env.isOtelEnabled()) {
 
     registerInstrumentations({
         instrumentations: [
-            new PinoInstrumentation({
-                logHook: (span, record, level) => {
-                    console.log('record', record)
-                    console.log('level', level)
-                    console.log('span', span)
-                    record['resource.service.name'] = provider.resource.attributes['service.name']
-                }
-            })
+            new PinoInstrumentation(),
+            new HttpInstrumentation({
+                requestHook: (span, request) => {
+                    span.updateName(`${request.method} ${request.url}`)
+                    span.setAttribute('request.uuid', request.id)
+                    span.setAttribute(SemanticAttributes.HTTP_USER_AGENT, request.headers['user-agent'])
+                    span.setAttribute(SemanticAttributes.HTTP_HOST, request.hostname)
+                },
+                responseHook: (span, response) => {
+                    span.setAttribute(SemanticAttributes.HTTP_STATUS_CODE, response.statusCode)
+                },
+                headersToSpanAttributes: ['user-agent', 'http.url', 'http.method', 'http.host', 'http.client_ip']
+            }),
+            new FastifyInstrumentation()
         ]
     })
 

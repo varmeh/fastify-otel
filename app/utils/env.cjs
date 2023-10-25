@@ -36,6 +36,14 @@ class Environment {
     serviceName() {
         return `${this.appName()}-${this.envName()}`
     }
+
+    logRequestData() {
+        return process.env.LOG_REQUEST_BODY === 'true'
+    }
+
+    logResponseData() {
+        return process.env.LOG_RESPONSE_BODY === 'true'
+    }
 }
 
 /* Check MANDATORY env variables are present in env file */
